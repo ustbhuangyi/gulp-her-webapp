@@ -1,0 +1,15 @@
+#common{
+  background: url('/resource/images/yy.jpg') no-repeat;
+}
+
+#test{
+  background: url('/resource/images/backtop.png?__sprite') no-repeat;
+}
+
+.test1{
+  background: url('/resource/images/btn-site_src.png?__sprite') no-repeat;
+}
+
+.test2{
+  background: url('/resource/images/caipiaoballbg.png?__sprite') no-repeat;
+}

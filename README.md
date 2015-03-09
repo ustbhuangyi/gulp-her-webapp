@@ -1,5 +1,4 @@
-# gulp-her-webapp
-Her是基于gulp编译工具和smarty plugin开发的一套前端集成解决方案。
+gulp-her是基于gulp编译工具和smarty plugin开发的一套前端集成解决方案。
 
 实现了基于smarty运行时和前端Bigpipe框架的分块输出和按需渲染，极大的优化了前端性能。
 

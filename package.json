@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.2.1",
+    "del": "^0.1.0",
+    "gulp": "^3.6.0",
+    "gulp-if": "^1.2.1",
+    "gulp-load-plugins": "^0.8.1",
+    "gulp-stylus": "^1.3.4",
+    "gulp-minify-css": "0.5.1",
+    "gulp-connect-php": "0.0.5",
+    "gulp-command": "0.1.0",
+    "gulp-her-kernel": "0.0.1",
+    "gulp-her-beforecompile": "0.0.1",
+    "gulp-her-aftercompile": "0.0.1",
+    "gulp-her-cssexpand": "0.0.1",
+    "gulp-her-csssprite": "0.0.1",
+    "gulp-her-jsexpand": "0.0.1",
+    "gulp-her-outputmap": "0.0.1",
+    "gulp-her-package": "0.0.1",
+    "gulp-her-jswrapper": "0.0.1",
+    "gulp-her-requireanalyze": "0.0.1",
+    "gulp-her-templatebuilder": "0.0.1"
+  }
+}

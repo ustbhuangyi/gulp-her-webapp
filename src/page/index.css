@@ -1,0 +1,12 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.test2{
+  background: url('/resource/images/backtop3.png?__sprite') no-repeat;
+}
+
+.test3{
+  background: url('/resource/images/baidulink.png?__sprite') no-repeat;
+}
