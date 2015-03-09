@@ -1,78 +1,55 @@
-__d("Controller", ["Arbiter", "Pagelet", "Resource"], function (global, require, module, exports) {
-    var Arbiter = require("Arbiter"),
-        Pagelet = require("Pagelet"),
-        Resource = require("Resource"),
-        EVENT_TYPES = ["arrived"];
+__d("Controller", ["Pagelet", "Resource"], function (global, require, module, exports) {
 
-    function Controller() {
-        Arbiter.call(this, EVENT_TYPES);
-    }
+  var Pagelet = require("Pagelet");
+  var Resource = require("Resource");
 
-    function getContentFromContainer(id, doc) {
-        var elem = getElementById(id, doc),
-            child, html;
-        if (!(child = elem.firstChild)) return null; //TODO
-        if (child.nodeType !== 8) return null; //TODO
-        html = child.nodeValue;
-        elem.parentNode.removeChild(elem);
-        html = html.slice(1, -1);
-        return html.replace(/--\\>/g, "-->").replace(/\\\\/g, "\\");
-    }
+  var Controller = {
+    pageletsArrive : function(pagelets){
+      each(pagelets, function(pagelet){
+        this.pageletArrive(pagelet);
+      }, this);
+    },
+    pageletArrive : function(conf){
+      var pagelet;
 
-    function getContent(obj) {
-        if (obj.content) return obj.content;
-        if (obj.container_id) return getContentFromContainer(obj.container_id, obj.doc);
-        return null;
-    }
-    inherits(Controller, Arbiter, {
-        handdleArrive: function (obj) {
-            var pagelet, id;
-            id = obj.id;
-            if (Pagelet.hasPagelet(id)) {
-                pagelet = Pagelet(id);
-                pagelet.remove();
-            }
-            if (Pagelet.hasPagelet(id)) {
-                pagelet = Pagelet(id);
-                if (pagelet.isUnloading()) {
-                    pagelet.on("afterunload", this._doArrive, this, obj);
-                } else {
-                    throw new Error("unbeliveble");
-                }
-            } else {
-                this._doArrive(obj);
-            }
-            // this.emit("arrive", obj);
-        },
-        _doArrive: function (obj) {
-            var id, parent, content, children, css, js, pagelet, hook, type, list, i, count, callback;
-            id = obj.id || null;
-            obj.html = getContent(obj);
-            pagelet = Pagelet(id);
-            if (hook = obj.hook) {
-                for (type in hook) {
-                    list = hook[type];
-                    count = list.length;
-                    i = -1;
-                    while (++i < count) {
-                        callback = list[i]
-                        try {
-                            pagelet.on(type, isFunction(callback) ? callback : new Function("pagelet", callback), global, pagelet);
-                        } catch (e) {
-                            throw new Error("Error on add script:" + list[i]);
-                        }
-                    }
-                }
-            }
-            pagelet.arrive(obj);
-            pagelet.on("afterload", onItemArrived, this, id);
+      if(Pagelet.hasPlagelet(conf.id)){
+        Pagelet.getPlagelet(conf.id).unload();
+      }
 
-            function onItemArrived(id) {
-                this.emit("arrived", id);
-            }
+      pagelet =  Pagelet.getPlagelet(conf.id);
 
+      if(conf.quickling){
+        //if(this.sessions[conf.id] === undefined) this.sessions[conf.id] = 0;
+        //if(conf.session < this.sessions[conf.id]) return;
+        //conf.html = conf.html.html;
+        Resource.setResourceMap(conf.resourceMap);
+        //delete conf.resourceMap;
+      }else if(conf.html){
+        conf.html = document.getElementById(conf.html.container).firstChild.data;
+      }
+
+      var hooks = conf.hooks;
+      if(hooks){
+        for(var i in hooks){
+          var type = hooks[i];
+          for(var j = 0; j < type.length; j++){
+            conf.quickling ?
+              pagelet.on(i, new Function(type[j])) :
+              pagelet.on(i, this.hooks[type[j]]);
+          }
         }
-    });
-    return Controller;
+      }
+
+      pagelet.on("load", function(){
+        //BigPipe.onPageletLoad && BigPipe.onPageletLoad.call(this);
+      });
+
+      pagelet.arrive(conf);
+    },
+    hooks:{},
+    setResourceMap : Resource.setResourceMap
+  };
+
+  module.exports = Controller;
 });
 /* @cmd false */

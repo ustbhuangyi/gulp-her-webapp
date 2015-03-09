@@ -1,196 +1,203 @@
-__d("CSSLoader", ["Arbiter"], function(global, require, module, exports) {
-    var Arbiter = require("Arbiter"),
-        EVENT_TYPES = ["load"],
-        STAT_INITIALIZED = 1,
-        STAT_LOADING = 2,
-        STAT_LOADED = 3,
-        STAT_TIMEOUT = 4,
-        TIMEOUT = 5000,
-        pulling = false,
-        styleSheetUrls = [],
-        styleSheetSet = [],
-        pullMap = {},
-        pullClasses = [],
-        pullElement = null;
+__d("CSSLoader", ["EventEmitter"], function(global, require, module, exports) {
+  var EventEmitter = require("EventEmitter");
+  /**
+   * 声明全局变量
+   * @param {Number} interval 检测拉取css的时间间隔
+   * @param {Number} WAITTIME 等待超时时间
+   * @param {Boolen} dusSupport 是否支持data url scheme
+   * @param {Boolen} checked 是否已检测过data url scheme
+   * @param {Object} loadedMap 已加载css的Map
+   * @param {Array} styleSheetSet 加载styleSheet的集合
+   * @param {Number} timeout 超时时间
+   * @param {Object} pullMap 拉取css的Map
+   */
 
-    function CSSLoader(id, config) {
-        Arbiter.call(this, EVENT_TYPES);
-        this.id = id;
-        this.url = config.src;
-        this.state = STAT_INITIALIZED;
-    }
+  var interval = 20,
+    WAITTIME = 5000,
+    dusSupport,
+    checked,
+    loadedMap = {},
+    styleSheetSet = [],
+    timeout,
+    pullMap = {};
 
-    function getClassName(id) {
-        return "css_" + id;
-    }
+  function checkDusSupport() {
+    var link;
+    if (checked)
+      return;
+    checked = true;
+    link = document.createElement('link');
+    link.onload = function () {
+      dusSupport = true;
+      link.parentNode.removeChild(link);
+    };
+    link.rel = 'stylesheet';
+    link.href = 'data:text/css;base64,';
+    appendToHead(link);
+  }
 
-    function setAllClasses(classes) {
-        if (!pullElement) {
-            pullElement = document.createElement("meta");
-            appendToHead(pullElement);
+  function checkCssLoaded() {
+    var id,
+      callbacks = [],
+      contexts = [],
+      signals = [],
+      signal,
+      style;
+    if (+new Date >= timeout) { //超时
+      for (id in pullMap) {
+        signals.push(pullMap[id].signal);
+        callbacks.push(pullMap[id].error);
+        contexts.push(pullMap[id].context);
+      }
+      pullMap = {};
+    } else {
+      for (id in pullMap) {
+        signal = pullMap[id].signal;
+        style = window.getComputedStyle ? getComputedStyle(signal, null) : signal.currentStyle;
+        if (style && parseInt(style.height, 10) > 1) {
+          callbacks.push(pullMap[id].load);
+          contexts.push(pullMap[id].context);
+          signals.push(signal);
+          delete pullMap[id];
         }
-        pullClasses = classes || pullClasses;
-        pullElement.className = pullClasses.join(" ");
+      }
     }
-
-    function addClass(cls) {
-        pullClasses.push(cls);
-        setAllClasses();
+    //清理
+    for (var i = 0; i < signals.length; i++)
+      signals[i].parentNode.removeChild(signals[i]);
+    if (!isEmpty(callbacks)) {
+      for (i = 0; i < callbacks.length; i++) {
+        callbacks[i].call(contexts[i]);
+      }
+      timeout = +new Date + WAITTIME;
     }
+    return isEmpty(pullMap);
+  }
 
-    function clearAllClasses() {
-        pullClasses = [];
-        if (pullElement) {
-            pullElement.parentNode.removeChild(pullElement);
-            pullElement = null;
+  function pullCss(id, onload, onTimeout, context) {
+    var meta, empty, timer;
+    meta = document.createElement('meta');
+    meta.className = 'css_' + id;
+    appendToHead(meta);
+
+    empty = !isEmpty(pullMap);
+    timeout = +new Date + WAITTIME;
+    pullMap[id] = {
+      signal: meta,
+      load: onload,
+      error: onTimeout,
+      context: context
+    };
+    if (!empty) {
+      timer = setInterval(function () {
+        if (checkCssLoaded()) {
+          clearInterval(timer);
         }
+      }, interval);
     }
+  }
 
-    function checkClass(element) {
-        var style;
-        if (!element) return false;
+  function onload() {
+    this.done("load");
+  }
 
-        style = window.getComputedStyle ? getComputedStyle(element, null) : element.currentStyle;
-        return (style && parseInt(style.height, 10) > 1);
-    }
+  function onTimeout() {
+    this.done("timeout");
+  }
 
-    function doPullStyleSheet() {
-        var id, found, last, classes, change, now,
-            list, element, loaded,
-            count, index, item;
+  var EVENT_TYPES = [
+    "load", // CSS加载完成时派发的事件
+    "timeout" // CSS 加载超时事件
+    //TODO 错误处理?
+  ];
 
-        if (pullClasses.length > 2) {
-            found = checkClass(pullElement);
+  var CSSLoader = derive(EventEmitter,
+    /**
+     * 构造一个CSS加载对象,
+     *
+     * @constructor
+     * @extends EventEmitter
+     * @alias CSSLoader
+     *
+     * @param {String} id CSS资源ID
+     * @param {Object} config CSS资源信息
+     */
+    function (__super, id, config) {
+      __super(EVENT_TYPES);
+      /**
+       * CSS资源ID
+       * @member {String}
+       */
+      this.id = id;
+      /**
+       * CSS资源URL
+       * @member {String}
+       */
+      this.uri = config.src;
+
+    },
+    /**
+     * @alias CSSLoader.prototype
+     */
+    {
+      /**
+       * 开始加载资源
+       * @fires CSSLoader#load
+       */
+      load: function () {
+        var me = this,
+          id = this.id,
+          uri = this.uri,
+          index, link;
+        if (loadedMap[id])
+          throw new Error('CSS component ' + id + ' has already been requested.');
+        if (document.createStyleSheet) {
+          for (var i = 0; i < styleSheetSet.length; i++)
+            if (styleSheetSet[i].imports.length < 31) {
+              index = i;
+              break;
+            }
+          if (index === undefined) {
+            styleSheetSet.push(document.createStyleSheet());
+            index = styleSheetSet.length - 1;
+          }
+          styleSheetSet[index].addImport(uri);
+          loadedMap[id] = {
+            styleSheet: styleSheetSet[index],
+            uri: uri
+          };
+          pullCss(id, onload, onTimeout, this);
+          return;
+        }
+        link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = uri;
+        loadedMap[id] = {
+          link: link
+        };
+        if (dusSupport) {
+          link.onload = function () {
+            link.onload = link.onerror = null;
+            //link.parentNode.removeChild(link);
+            onload.call(me);
+          };
+          link.onerror = function () {
+            link.onload = link.onerror = null;
+            //link.parentNode.removeChild(link);
+            onTimeout.call(me);
+          };
         } else {
-            found = true;
+          pullCss(id, onload, onTimeout, this);
+          if (dusSupport === undefined)
+            checkDusSupport();
         }
-
-        last = 0;
-        classes = []; // 还需要加载的class
-        change = false; // class列表是否有改变
-        now = +new Date;
-
-        for (id in pullMap) {
-            list = pullMap[id];
-            element = list[0]; //DOM元素
-            loaded = false; //是否加载成功
-
-            if (found && checkClass(element)) {
-                loaded = true;
-            }
-
-            for (index = 1, count = list.length; index < count; index++) {
-                item = list[index]; //回调 [timeout, callback, context]
-                if (loaded) {
-                    item[1].call(item[2], true);
-                } else if (item[0] < now) {
-                    item[1].call(item[2], false);
-                    list.splice(index, 1);
-                    index--;
-                    count--;
-                }
-            }
-
-            if (loaded || count == 1) {
-                //如果已经载入或者全部超时，则不需要再pull
-                element.parentNode.removeChild(element);
-                delete pullMap[id];
-                // class列表有改变
-                change = true;
-            } else {
-                //否则记录需要pull的class
-                classes.push(getClassName(id));
-                last++;
-            }
-        }
-
-
-        if (last) {
-            if (change) {
-                setAllClasses(classes);
-            }
-            setTimeout(doPullStyleSheet, 20);
-        } else {
-            clearAllClasses();
-            pulling = false;
-        }
-    }
-
-    function startPull() {
-        if (!pulling) {
-            pulling = true;
-            nextTick(doPullStyleSheet);
-        }
-    }
-
-    function pullStyleSheet(id, timeout, callback, context) {
-        var callbackList, element, className;
-        if (!(callbackList = pullMap[id])) {
-            className = getClassName(id);
-            element = document.createElement("meta");
-            element.className = className;
-            appendToHead(element);
-            callbackList = [element];
-            pullMap[id] = callbackList;
-            addClass(className);
-        }
-        timeout = (+new Date) + timeout;
-        callbackList.push([timeout, callback, context]);
-        startPull();
-    }
-
-    function pullStyleSheetCallback(success) {
-        this.state = success ? STAT_LOADED : STAT_TIMEOUT;
-        this.done("load", success);
-    }
-
-    function loadByCreateElement() {
-        var id = this.id,
-            url = this.url,
-            link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = url;
         appendToHead(link);
-        pullStyleSheet(id, TIMEOUT, pullStyleSheetCallback, this);
-    }
+      },
+      unload: function () {
+        // TODO 资源卸载?一期先不用
+      }
+    });
 
-    function loadByCreateStyleSheet() {
-        var id = this.id,
-            url = this.url,
-            count = styleSheetUrls.length,
-            index = count,
-            stylesheet;
-        while (index--) {
-            if (styleSheetUrls[index].length < 31) {
-                stylesheet = styleSheetSet[index];
-                break;
-            }
-        }
-        if (index < 0) {
-            stylesheet = document.createStyleSheet();
-            styleSheetSet.push(stylesheet);
-            styleSheetUrls.push([]);
-            index = count;
-        }
-        stylesheet.addImport(url);
-        styleSheetUrls[index].push(url);
-        pullStyleSheet(id, TIMEOUT, pullStyleSheetCallback, this);
-    }
-
-    inherits(CSSLoader, Arbiter, {
-            load: function() {
-                if (this.state < STAT_LOADING) {
-                    this.state = STAT_LOADING;
-                    this._load();
-                }
-            },
-            _load: document.createStyleSheet ? loadByCreateStyleSheet : loadByCreateElement
-            //_load: loadByCreateElement
-        });
-
-
-    return CSSLoader;
+  module.exports = CSSLoader;
 });
-/* __wrapped__ */
-/* @cmd false */

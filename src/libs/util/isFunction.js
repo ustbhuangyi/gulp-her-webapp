@@ -1,5 +1,10 @@
-/* @cmd false */
+/**
+ * isFunction 判断一个对象是否为一个函数
+ *
+ * @param {Object} obj 需要被鉴定的对象
+ * @access public
+ * @return {Boolean} 该对象是否为一个函数
+ */
 function isFunction(obj) {
-    var toString = Object.prototype.toString;
-    return '[object Function]' == toString.call(obj);
+  return type(obj) === 'function';
 }

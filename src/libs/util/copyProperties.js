@@ -1,18 +1,45 @@
-/* @cmd false */
-function copyProperties(target) {
-    target = target || {};
-    var args = arguments,
-        count = args.length,
-        index = 0,
-        item, key;
+/**
+ * 复制属性到对象
+ *
+ * @param {Object} to 目标对象
+ * @param {...Object} from 多个参数
+ * @access public
+ * @return {Object} 目标对象
+ *
+ * @example
+ * var objA = {
+ *         a : 1
+ *     },
+ *     objB = {
+ *         b : 2
+ *     };
+ *
+ * copyProperties(objA, objB, {
+ *      c : 3
+ * });
+ * console.log(objA);
+ * // {
+ * // a : 1,
+ * // b : 2,
+ * // c : 3
+ * // }
+ */
+function copyProperties(to /*, ...*/) {
+  var index, count, item, key;
 
-    while (++index < count) {
-        item = args[index];
-        for (key in item) {
-            if (item.hasOwnProperty(key)) {
-                target[key] = item[key];
-            }
-        }
+  to = to || {};
+  count = arguments.length;
+
+  //遍历参数列表
+  for (index = 1; index < count; index++) {
+    item = arguments[index];
+    for (key in item) {
+      //只复制自有属性
+      if (hasOwnProperty(item, key)) {
+        to[key] = item[key];
+      }
     }
-    return target;
+  }
+
+  return to;
 }

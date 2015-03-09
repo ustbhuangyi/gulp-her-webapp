@@ -1,81 +1,110 @@
-__d("JSLoader", ["Arbiter"], function(global, require, module, exports) {
-    var Arbiter = require("Arbiter"),
-        EVENT_TYPES = ["load"],
-        STAT_INITIALIZED = 1,
-        STAT_LOADING = 2,
-        STAT_LOADED = 3,
-        STAT_ERROR = 4;
+__d("JSLoader", ["EventEmitter"], function(global, require, module, exports) {
+  var EventEmitter = require("EventEmitter");
+  var STAT_INITIALIZED = 1,
+    STAT_LOADING = 2,
+    STAT_LOADED = 3,
+    STAT_ERROR = 4;
 
-    function getHookName(id) {
-        return "js_" + id;
-    }
+  var EVENT_TYPES = [
+    "load" // JS加载完成时派发的事件
+    //TODO 错误处理?
+  ];
 
-    function JSLoader(id, config) {
-        Arbiter.call(this, EVENT_TYPES);
-        this.id = id;
-        this.url = config.src;
-        this.state = STAT_INITIALIZED;
-    }
+  var JSLoader = derive(EventEmitter,
+    /**
+     * 构造一个Js加载对象,
+     *
+     * @constructor
+     * @extends EventEmitter
+     * @alias JSLoader
+     *
+     * @param {String} id JS资源ID
+     * @param {Object} config JS资源信息
+     */
+    function (__super, id, config) {
+      __super(EVENT_TYPES);
+      /**
+       * JS资源ID
+       * @member {String}
+       */
+      this.id = id;
+      /**
+       * JS资源URL
+       * @member {String}
+       */
+      this.url = config.src;
+      /**
+       * loader加载状态
+       * @member {Number}
+       */
+      this.state = STAT_INITIALIZED;
+    },
+    /**
+     * @alias JSLoader.prototype
+     */
+    {
+      /**
+       * 开始加载资源
+       * @fires JSLoader#load
+       */
+      load: function () {
+        //TODO 实现资源加载
+        var me = this,
+          script,
+          onload;
+        if (this.state >= STAT_LOADING)
+          return;
+        this.state = STAT_LOADING;
 
-    inherits(JSLoader, Arbiter, {
-            load: function() {
-                var self = this,
-                    hookName, oldVal;
-                if (this.state >= STAT_LOADING) return;
-                this.state = STAT_LOADING;
-                var element = document.createElement('script');
-                element.src = this.url;
-                element.async = true;
-                /*
-                element.onload = function() {
-                    callback(true);
-                };
-				*/
-                element.onerror = function() {
-                    callback(false);
-                };
-                /*
-                element.onreadystatechange = function() {
-                    if (this.readyState in {
-                            loaded: 1,
-                            complete: 1
-                        }) {
-                        callback(true);
-                    }
-                };
-				*/
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = me.url;
+        script.async = true;
 
-                hookName = getHookName(this.id);
-                oldVal = window[hookName];
-                window[hookName] = callback;
+        script.onload = function () {
+          callback(true);
+        };
 
-                appendToHead(element);
+        script.onerror = function () {
+          callback(false);
+        };
 
-                function callback(success) {
-                    var state = self.state;
-                    if (state >= STAT_LOADED)
-                        return;
-                    self.state = success ? STAT_LOADED : STAT_ERROR;
-                    self.done("load");
+        script.onreadystatechange = function () {
+          if (this.readyState in {
+              loaded: 1,
+              complete: 1
+            }) {
+            callback(true);
+          }
+        };
 
-                    window[hookName] = oldVal;
-                    if (oldVal === undefined) {
-                        try {
-                            delete window[hookName];
-                        } catch (e) {}
-                    }
+        appendToHead(script);
+        /**
+         * 资源加载完成回调
+         *
+         * @event JSLoader#load
+         */
+        function callback(success) {
+          if (me.state >= STAT_LOADED) {
+            return;
+          }
+          me.state = success ? STAT_LOADED : STAT_ERROR;
 
-                    nextTick(function() {
-                        //element.onload = element.onerror = element.onreadystatechange = null;
-                        element.onerror = null;
-                        element.parentNode && element.parentNode.removeChild(element);
-                        element = null;
-                    });
-                }
-            }
-        });
+          me.emit("load");
 
-    return JSLoader;
+          nextTick(function () {
+
+            script.onload = script.onerror = script.onreadystatechange = null;
+            script.parentNode && script.parentNode.removeChild(script);
+            script = null;
+          });
+        }
+      },
+
+      unload: function () {
+        // TODO 资源卸载?一期先不用
+      }
+    });
+
+  module.exports = JSLoader;
 });
-/* __wrapped__ */
-/* @cmd false */
