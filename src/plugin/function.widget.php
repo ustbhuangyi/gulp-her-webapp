@@ -51,6 +51,7 @@ function smarty_function_widget($params, $template)
 
     $smarty=$template->smarty;
     //$tplpath = str_replace("/template/","",$path["src"]);
+    $tplpath = $path["src"];
 
     // First try to call the mothed passed via the $call param,
     // in order to made it compatible for fisp.
