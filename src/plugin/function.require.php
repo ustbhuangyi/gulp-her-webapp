@@ -5,6 +5,10 @@
  *
  * @param array $params
  * @param Smarty $smarty
+ * @return void
+ * @see BigPipeResource::registModule
+ * @see BigPipe::currentContext
+ * @see PageletContext->addRequire
  */
 function smarty_function_require($params, $smarty){
     $link = $params['name'];
@@ -14,7 +18,6 @@ function smarty_function_require($params, $smarty){
 
     $context   = BigPipe::currentContext();
 
-    //$ext = substr(strrchr(json_decode($link), "."), 1);
     $ext = substr(strrchr($link, "."), 1);
     switch ($ext) {
         case 'css':

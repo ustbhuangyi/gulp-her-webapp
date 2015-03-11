@@ -3,3 +3,7 @@ dist/
 .idea/
 npm-debug.log
 .DS_Store
+
+
+src_bak/
+her-pc-demo/

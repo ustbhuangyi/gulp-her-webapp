@@ -1,6 +1,7 @@
 <?php
 
 BigPipe::loadClass("PageletEvent");
+
 /**
  * Pagelet 节点上下文
  * 用于保存 Pagelet 的属性
@@ -22,7 +23,7 @@ class PageletContext
      */
     const FLG_AUTO_ADD_EVENT = 1;
     
-    
+     
     /**
      * 如果指定参数没有值则添加参数
      * @see getParam
@@ -146,6 +147,7 @@ class PageletContext
         }else{
             $target = $this;
         }
+        
         $event = $target->getEvent($eventType, self::FLG_AUTO_ADD_EVENT);
         if (is_array($resourceName)) {
             foreach ($resourceName as $name) {
@@ -291,24 +293,20 @@ class PageletContext
                 $params = $this->params;
             }
             
+            // Parse _attributes param for Hao123-sub
             if($this->type == BigPipe::TAG_BODY && isset($params["_attributes"])){
                 $attrs = $params["_attributes"];
                 unset($params["_attributes"]);
 
                 foreach ($attrs as $key => $value) {
-                    //if (strpos($key, BigPipe::ATTR_PREFIX) !== 0) {
                     $text .= " $key=\"" . htmlspecialchars($value, ENT_QUOTES, 'UTF-8', true) . "\"";
-                    //}
                 }
             }
-            //unset($params["_attributes"]);
-
             foreach ($params as $key => $value) {
                 if(!isset($value)) continue;
                 if (strpos($key, BigPipe::ATTR_PREFIX) !== 0) {
                     $text .= " $key=\"" . htmlspecialchars($value, ENT_QUOTES, 'UTF-8', true) . "\"";
                 }
-
             }
         }
         $text .= '>';

@@ -6,7 +6,11 @@
  * @param array $params
  * @param string $content
  * @param Smarty $smarty
- * @param bool $repeat
+ * @param bool $repeat 
+ * @see BigPipe::currentContext
+ * @see PageletContext->addRequire
+ * @see PageletContext->addRequireAsync
+ * @see PageletContext->addHook
  */
 function smarty_block_script($params, $content, $smarty, &$repeat)
 {

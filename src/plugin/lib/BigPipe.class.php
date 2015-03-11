@@ -5,6 +5,7 @@ if (!defined('BIGPIPE_BASE_DIR')) {
 
 // BigPipeResource运行依赖her-map.json, 需要在这里设置config目录的路径
 // 下面的设置基于Her默认plugin和her-map.json发布配置
+// Notice : You may need to config this.
 if (!defined('BIGPIPE_CONF_DIR')) {
     define('BIGPIPE_CONF_DIR', BIGPIPE_BASE_DIR . '/../../config');
 }
@@ -116,25 +117,11 @@ class BigPipe
      */
     private static $savedAssertOptions = null;
     
-    /**
-     * 配置 Smarty 实例
-     * 将会添加 plugins 目录到 smarty 的插件目录
-     * 
-     * @param Smarty $smarty 
-     * @static
-     * @access public
-     * @return void
-     */
-    public static function setupSmarty($smarty) // {{{
-    {
-        //$smarty->addPluginsDir(BIGPIPE_BASE_DIR . DIRECTORY_SEPARATOR . "plugins");
-    } // }}}
     public static function getBigrenderCode() // {{{
     {
         if(self::$bigrenderCode) return self::$bigrenderCode;
 
         return self::$bigrenderCode = "return !require('" . self::$bigrenderLib . "').add(this);"; 
-        //$smarty->addPluginsDir(BIGPIPE_BASE_DIR . DIRECTORY_SEPARATOR . "plugins");
     } // }}}
     
     /**
@@ -200,7 +187,6 @@ class BigPipe
      */
     private static function getController() // {{{
     {
-        // 一期我们只实现了 FirstController,为避免走入错误逻辑，所以先注释掉这些代码
         $get    = self::getSuperGlobal(self::SUPER_TYPE_GET);
         //$cookie = self::getSuperGlobal(self::SUPER_TYPE_COOKIE);
         //
@@ -213,23 +199,10 @@ class BigPipe
         //    return new NoScriptController();
         //}
         //
-        ///**
-        // * 再判断是否为 Quickling 请求 
-        // */
-        //if (isset($get[self::$quicklingKey]) && isset($get[self::$sessionKey])) {
-        //    $ids = $get[$ajax];
-        //    if (empty($ids)) {
-        //        $ids = null;
-        //    } else {
-        //        $ids = explode(self::$separator, $ids);
-        //    }
-        //    self::loadClass("QuicklingController");
-        //    return new QuicklingController(intval($get[self::$sessionKey]), $ids);
-        //}
-        
+
         /**
-         * 默认走 Fist 请求 
-         */
+        * 判断是否为 Quickling 请求 
+        */
         if ( isset($get[self::$quicklingKey]) ){
             $ids = $get[self::$quicklingKey];
             $sessions = array();
@@ -247,7 +220,9 @@ class BigPipe
             self::loadClass("SmartController");
             return new SmartController($sessions, $ids);
         }
-
+        /**
+         * 默认走 Fist 请求 
+         */
         self::loadClass("FirstController");
         return new FirstController();
     } // }}}

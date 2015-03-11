@@ -23,7 +23,6 @@ class FirstController extends PageController
     private $state = self::STAT_COLLECT; //初始状态
     private $headInnerHTML = null;
     private $bodyInnerHTML = null;
-    //private $pagelets = array();
     private $loadedResource = array();
     
     protected $sessionId = 0; //此次会话ID,用于自动生成不重复id,第一次默认为0
@@ -207,6 +206,7 @@ class FirstController extends PageController
         if($event != false){
             $styleLinks = $event->requires;
 
+            var_dump($styleLinks);
             $styleResources = BigPipeResource::pathToResource($styleLinks, 'css');
             $styleResources = BigPipeResource::getDependResource($styleResources, false);
 

@@ -176,10 +176,14 @@ abstract class PageController
      */
     protected function collectScript($context) // {{{
     {
-        $context->parent->addScript(ob_get_clean(), $context->getBigPipeConfig("on", "load"), $context->getBigPipeConfig("deps"), $context->getBigPipeConfig("asyncs"));
+        $context->parent->addScript(
+            ob_get_clean(), 
+            $context->getBigPipeConfig("on", "load"), 
+            $context->getBigPipeConfig("deps"), 
+            $context->getBigPipeConfig("asyncs")
+        );
     } // }}}
     
 }
 
 // vim600: sw=4 ts=4 fdm=marker syn=php
-

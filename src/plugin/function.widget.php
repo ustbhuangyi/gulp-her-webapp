@@ -1,12 +1,15 @@
 <?php
-/** 
- *           File:  function.widget.php
- *           Path:  src/plugin
- *         Author:  zhangyuanwei
- *       Modifier:  zhangyuanwei
- *       Modified:  2012-05-02 12:48:53  
- *    Description:  
- *      Copyright:  (c) 2011 All Rights Reserved
+/**
+ * smarty function widget
+ * called by {widget} tag
+ *
+ * @param array $params
+ * @param Smarty $template
+ * @return Smarty template funtion call
+ * @see BigPipeResource::registModule
+ * @see BigPipeResource::getFisResourceByPath
+ * @see BigPipe::currentContext
+ * @see PageletContext->addRequire
  */
 
 function smarty_function_widget($params, $template)
@@ -21,11 +24,12 @@ function smarty_function_widget($params, $template)
         unset($params['call']);
     }
 
-    BigPipeResource::registModule($name, true);
+    BigPipeResource::registModule($name);
     
-    $path = BigPipeResource::getFisResourceByPath($name);
-
-    // 添加widget依赖的css和less
+    $path = BigPipeResource::getFisResourceByPath($name, "tpl");
+    // var_dump($path);
+    // exit;
+    // Auto add widget css and less deps (no js) to currentContext.
     if(!empty($path["deps"])){
 
         $deps = $path["deps"];
@@ -46,16 +50,17 @@ function smarty_function_widget($params, $template)
     }
 
     $smarty=$template->smarty;
-    $tplpath = $path["uri"];
+    //$tplpath = str_replace("/template/","",$path["src"]);
 
-    // 先处理call方法调用，兼容fisp
+    // First try to call the mothed passed via the $call param,
+    // in order to made it compatible for fisp.
     if(isset($call)){
         $call = 'smarty_template_function_' . $call;
         if(!function_exists($call)) {
             try {
                 $smarty->fetch($tplpath);
             } catch (Exception $e) {
-                throw new Exception("No tpl here, \"$name\" @ \"$tplpath\"");
+                throw new Exception("\nNo tpl here, via call \n\"$name\" \n@ \"$tplpath\"");
             }
         }
         if(function_exists($call)) {
@@ -63,21 +68,25 @@ function smarty_function_widget($params, $template)
         }
     }
 
-    // 如果call不存在 则调用method
+    // If there is no method named $call, 
+    // try to call mothed passed via the $method param
     $fn='smarty_template_function_' . $method;
     if(!function_exists($fn)) {
         try {
             $smarty->fetch($tplpath);
         } catch (Exception $e) {
-            throw new Exception("No tpl here, \"$name\" @ \"$tplpath\"");
+        		//var_dump($e);
+            throw new Exception("\nNo tpl here,via method \n\"$name\" \n@ \"$tplpath\"");
         }
     }
 
     if(function_exists($fn)) {
         return $fn($template, $params);
-    } 
-    // 如果method也不对 则尝试md5($name)，这是为了解决动态调用
-    // 如果都没有则 throw error
+    }
+    
+    // If still no method named $method, 
+    // try to construct a method name with the tpl path, via md5().
+    // This is in order to support call method through dynamic tpl path.
     else
     {
         $methodName = preg_replace('/^_[a-fA-F0-9]{32}_/','',$method);
@@ -91,7 +100,6 @@ function smarty_function_widget($params, $template)
                 return $fn($template, $params);
             }
         }
-        throw new Exception("Undefined function \"$method\" in \"$name\" @ \"$tplpath\"");
-        //echo "模板\"$name\"中未定义函数\"$method\"@\"$tplpath\"";
+        throw new Exception("\nUndefined function \"$method\" \nin \"$name\" \n@ \"$tplpath\"");
     }
 }

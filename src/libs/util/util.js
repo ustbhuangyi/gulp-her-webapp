@@ -10,6 +10,7 @@ __inline('hasOwnProperty.js');
 __inline('inArray.js');
 __inline('isArray.js');
 __inline('isEmpty.js');
+__inline('isFunction.js');
 __inline('JSON.js');
 __inline('nextTick.js');
 __inline('queueCall.js');

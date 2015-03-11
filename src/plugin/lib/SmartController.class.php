@@ -135,7 +135,11 @@ class SmartController extends FirstController
      */
     protected function addPagelet($context)
     {
-        $id = $context->getParam("id", $this->sessionUniqId("__elm_"), PageletContext::FLG_APPEND_PARAM);
+        $id = $context->getParam(
+            "id", 
+            $this->sessionUniqId("__elm_"), 
+            PageletContext::FLG_APPEND_PARAM
+        );
         //$parentId = $context->parent->
         if(isset($context->parent)){
             $parentId = $context->parent->getParam("id");
@@ -151,35 +155,35 @@ class SmartController extends FirstController
     }
     
     /**
-     * 将当前 pagelet 添加到输出列表中
+     * 输出pagelet开始标签
      *
      * @param PageletContext $context
      */
     protected function outputSmartOpenTag($context)
     {
-        //if( in_array($context->getParam("id"), $this->oids )) return;
-        if( in_array($context->getParam("id"), $this->cids )) $this->outputOpenTag($context);
+        if( in_array($context->getParam("id"), $this->cids )) {
+            $this->outputOpenTag($context);
+        }
     }
     /**
-     * 将当前 pagelet 添加到输出列表中
+     * 输出pagelet结束标签
      *
      * @param PageletContext $context
      */
     protected function outputSmartCloseTag($context)
     {
-        //if( in_array($context->getParam("id"), $this->oids )) return;
-        if( in_array($context->getParam("id"), $this->cids )) $this->outputCloseTag($context);
+        if( in_array($context->getParam("id"), $this->cids )) {
+            $this->outputCloseTag($context);
+        }
     }
 
     /**
-     * 输出页面中所有的 pagelet
+     * 输出Quickling请求的pagelets
      *
      * @param PageletContext $context
      */
     protected function outputPagelets($context)
     {   
-        //var_dump($this->sessions);
-        //echo "[";
         $pagelets = array();
         foreach ($this->pagelets as $pagelet) {
             $id = $pagelet->getParam("id");
@@ -197,20 +201,18 @@ class SmartController extends FirstController
         
         echo json_encode($pagelets);
     }
-    
+    /**
+     * 按Quickling模式输出一个pagelet
+     *
+     * @param PageletContext $context
+     */    
     protected function outputPagelet($pagelet)
     {
         $resourceMap = array();
         $hooks = array();
         $config = $this->getPageletConfig($pagelet, $html, $resourceMap, $hooks);
         $config['quickling'] = true;
-        // 输出注释里的 HTML
-        //if (!empty($html)) {
-            //echo "\n" . $html;
-        //}
-        
-        // echo "\n<script>\"use strict\";\n";
-        // 输出函数
+
         if (!empty($hooks)) {
             foreach ($hooks as $id => $hook) {
                 // echo "BigPipe.hooks[\"$id\"]=function(){{$hook}};\n";
@@ -263,7 +265,7 @@ class SmartController extends FirstController
     }
 
     /**
-     * 得到 pagelet 的配置，用于 BigPipe.onPageletArrive
+     * 得到 pagelet 的配置，用于Quickling输出
      *
      * @param PageletContext $pagelet
      * @param string $html

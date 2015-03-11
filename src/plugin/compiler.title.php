@@ -8,6 +8,7 @@
  * @param Smarty $smarty 
  * @access public
  * @return string 编译后的php代码
+ * @see BigPipe::compileOpenTag
  */
 function smarty_compiler_title($params,  $smarty){
 	return 
@@ -26,6 +27,7 @@ function smarty_compiler_title($params,  $smarty){
  * @param Smarty $smarty 
  * @access public
  * @return string 编译后的php代码
+ * @see BigPipe::compileCloseTag
  */
 function smarty_compiler_titleclose($params,  $smarty){
 	return 

@@ -10,10 +10,7 @@
  * @return string 编译后的php代码
  * @see BigPipe::compileOpenTag
  */
-// return !require("common:widget/js/bigRender.js").add(this);
-
 function smarty_compiler_pagelet($params,  $smarty){
-	
 	return 
 '<?php '.
 '}'.
