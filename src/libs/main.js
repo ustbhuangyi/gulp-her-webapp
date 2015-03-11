@@ -1,4 +1,4 @@
-__inline('../static/lib/amd.js');
+__inline('runtimeAMD.js');
 //lib entrance
 (function(global, window, document, undefined) {
     __inline('util/util.js');
