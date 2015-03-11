@@ -50,7 +50,8 @@ var herconf = {
         path: {
             tpl: {
                 src: ['src/**/*.tpl', '!src/smarty/**/*.tpl'],
-                release: dest + templates + '/' + namespace
+                release: dest + templates + '/' + namespace,
+                url: namespace
             },
             js: {
                 src: ['src/**/*.js', '!src/libs/**/*.js'],
