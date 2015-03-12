@@ -185,10 +185,8 @@ class FirstController extends PageController
      */
     protected function setupBigrender($context)
     {
-        //echo $this->bodyInnerHTML;
         if(isset($context->bigrender)){
             $eventType = "beforeload";
-            //var_dump(BigPipe::$bigrenderLib);
             $context->addRequire($eventType, BigPipe::$bigrenderLib);
             $context->addHook($eventType, BigPipe::getBigrenderCode());
         }
@@ -206,7 +204,6 @@ class FirstController extends PageController
         if($event != false){
             $styleLinks = $event->requires;
 
-            var_dump($styleLinks);
             $styleResources = BigPipeResource::pathToResource($styleLinks, 'css');
             $styleResources = BigPipeResource::getDependResource($styleResources, false);
 

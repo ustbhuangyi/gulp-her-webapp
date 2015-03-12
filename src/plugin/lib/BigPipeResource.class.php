@@ -7,8 +7,7 @@
  */
 class BigPipeResource
 {
-    private static $map = array();
-    private static $fismap = array(
+    private static $map = array(
         "res"=>array(),
         "tpl"=>array(),
         "pkg"=>array()
@@ -16,12 +15,12 @@ class BigPipeResource
     private static $registedMoudle = array();
     public static $knownResources = array();
     
-    public static function setupFisMap($map)
+    public static function setupMap($map)
     {
         # code...
-        self::$fismap["res"] = array_merge(self::$fismap["res"], $map["res"]);
-        self::$fismap["tpl"] = array_merge(self::$fismap["tpl"], $map["tpl"]);
-        self::$fismap["pkg"] = array_merge(self::$fismap["pkg"], $map["pkg"]);
+        self::$map["res"] = array_merge(self::$map["res"], $map["res"]);
+        self::$map["tpl"] = array_merge(self::$map["tpl"], $map["tpl"]);
+        self::$map["pkg"] = array_merge(self::$map["pkg"], $map["pkg"]);
     }
 
     public static function registModule($name)
@@ -34,34 +33,29 @@ class BigPipeResource
             $femodule = substr($name, 0, $intPos);
         }
 
-        //$configPath = SMARTY_TEMPLATE_DIR . '/config';
-        //$configPath = SMARTY_CONF_DIR;
         $configPath = BIGPIPE_CONF_DIR;
         
         if(!in_array($femodule, self::$registedMoudle)){
-            $fismapPath = $configPath . '/' . $femodule . '-map.json';
-            $fismap     = json_decode(file_get_contents($fismapPath), true);
-            BigPipeResource::setupFisMap($fismap);
+            $mapPath = $configPath . '/' . $femodule . '-map.json';
+            $map     = json_decode(file_get_contents($mapPath), true);
+            BigPipeResource::setupMap($map);
             self::$registedMoudle[] = $femodule;
         }
-        //var_dump(self::$fismap["tpl"]);
-        //$hermap = BigPipe::array_merge($commonMap, $hermap);
     }
 
-    public static function getFisResourceByPath($path, $type)
+    public static function getTplByPath($path)
     {
-        return self::$fismap[$type][$path];
+        return self::$map["tpl"][$path];
     }
 
     public static function getResourceByPath($path, $type = null){
-        $map = self::$fismap["res"];
+        $map = self::$map["res"];
         foreach ($map as $id => $resource) {
             if( (!isset($type) || $type == $resource['type']) 
                 && in_array($path, $resource['defines'])){
                 $resource['id'] = $id;
                 if(!isset($resource['requires'])) $resource['requires'] = array();
                 if(!isset($resource['requireAsyncs'])) $resource['requireAsyncs'] = array();
-                //return array($id, $resource);
                 return $resource;
             }
         }

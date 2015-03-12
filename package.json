@@ -13,16 +13,16 @@
     "gulp-minify-css": "0.5.1",
     "gulp-connect-php": "0.0.5",
     "gulp-command": "0.1.0",
-    "gulp-her-kernel": "0.0.1",
-    "gulp-her-beforecompile": "0.0.1",
-    "gulp-her-aftercompile": "0.0.1",
-    "gulp-her-cssexpand": "0.0.1",
-    "gulp-her-csssprite": "0.0.1",
-    "gulp-her-jsexpand": "0.0.1",
-    "gulp-her-outputmap": "0.0.1",
-    "gulp-her-package": "0.0.1",
-    "gulp-her-jswrapper": "0.0.1",
-    "gulp-her-requireanalyze": "0.0.1",
-    "gulp-her-templatebuilder": "0.0.1"
+    "gulp-her-kernel": "latest",
+    "gulp-her-beforecompile": "latest",
+    "gulp-her-aftercompile": "latest",
+    "gulp-her-cssexpand": "latest",
+    "gulp-her-csssprite": "latest",
+    "gulp-her-jsexpand": "latest",
+    "gulp-her-outputmap": "latest",
+    "gulp-her-package": "latest",
+    "gulp-her-jswrapper": "latest",
+    "gulp-her-requireanalyze": "latest",
+    "gulp-her-templatebuilder": "latest"
   }
 }

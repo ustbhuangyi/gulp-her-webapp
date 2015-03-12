@@ -7,7 +7,7 @@
  * @param Smarty $template
  * @return Smarty template funtion call
  * @see BigPipeResource::registModule
- * @see BigPipeResource::getFisResourceByPath
+ * @see BigPipeResource::getTplByPath
  * @see BigPipe::currentContext
  * @see PageletContext->addRequire
  */
@@ -26,9 +26,7 @@ function smarty_function_widget($params, $template)
 
     BigPipeResource::registModule($name);
     
-    $path = BigPipeResource::getFisResourceByPath($name, "tpl");
-    // var_dump($path);
-    // exit;
+    $path = BigPipeResource::getTplByPath($name);
     // Auto add widget css and less deps (no js) to currentContext.
     if(!empty($path["deps"])){
 
@@ -50,7 +48,6 @@ function smarty_function_widget($params, $template)
     }
 
     $smarty=$template->smarty;
-    //$tplpath = str_replace("/template/","",$path["src"]);
     $tplpath = $path["src"];
 
     // First try to call the mothed passed via the $call param,
