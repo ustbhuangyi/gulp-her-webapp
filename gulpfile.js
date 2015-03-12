@@ -181,16 +181,6 @@ gulp.task('smarty:copy', function () {
   gulp.src('src/smarty/**/*')
     .pipe(gulp.dest(dest + '/smarty'));
 });
-//copy smarty
-gulp.task('fisdata:copy', function () {
-  gulp.src('src/fisdata/**/*')
-    .pipe(gulp.dest(dest + '/fisdata'));
-});
-//copy smarty
-gulp.task('rewrite:copy', function () {
-  gulp.src('src/rewrite/**/*')
-    .pipe(gulp.dest(dest + '/rewrite'));
-});
 
 //copy php
 gulp.task('php:copy', function () {
@@ -265,8 +255,6 @@ gulp.task('compile', [
   'image:compile',
   'lib:compile',
   'testdata:copy',
-  'fisdata:copy',
-  'rewrite:copy',
   'smarty:copy',
   'plugin:copy',
   'php:copy'
