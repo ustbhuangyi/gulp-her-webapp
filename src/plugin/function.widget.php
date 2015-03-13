@@ -26,29 +26,26 @@ function smarty_function_widget($params, $template)
 
     BigPipeResource::registModule($name);
     
-    $path = BigPipeResource::getTplByPath($name);
+    $tpl = BigPipeResource::getTplByPath($name);
     // Auto add widget css and less deps (no js) to currentContext.
-    if(!empty($path["deps"])){
+    if(!empty($tpl["deps"])){
 
-        $deps = $path["deps"];
+        $deps = $tpl["deps"];
         $context   = BigPipe::currentContext();
 
         foreach($deps as $dep){
             BigPipeResource::registModule($dep);
+            $depResource = BigPipeResource::getResourceByPath($dep);
 
-            $ext = substr(strrchr($dep, "."), 1);
-            switch ($ext) {
-                case 'css':
-                case 'less':
-                    $on = 'beforedisplay';
-                    $context->addRequire($on, $dep);
-                    break;
+            if($depResource["type"] === "css"){
+                $on = 'beforedisplay';
+                $context->addRequire($on, $dep);
             }
         }
     }
 
     $smarty=$template->smarty;
-    $tplpath = $path["src"];
+    $tplpath = $tpl["src"];
 
     // First try to call the mothed passed via the $call param,
     // in order to made it compatible for fisp.
@@ -73,7 +70,6 @@ function smarty_function_widget($params, $template)
         try {
             $smarty->fetch($tplpath);
         } catch (Exception $e) {
-        		//var_dump($e);
             throw new Exception("\nNo tpl here,via method \n\"$name\" \n@ \"$tplpath\"");
         }
     }

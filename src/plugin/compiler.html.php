@@ -15,9 +15,7 @@ function smarty_compiler_html($params,  $smarty){
 	if(!class_exists("BigPipe", false)){
 		require_once($strBigPipePath);
 	}
-	
-	// uniqueid currently not used
-	// $uniqid = BigPipe::compileUniqid();
+
 	return 
 '<?php '.
 'if(!class_exists("BigPipe", false)){require_once(\'' . $strBigPipePath . '\');}'.

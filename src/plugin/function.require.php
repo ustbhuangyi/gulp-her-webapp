@@ -17,11 +17,10 @@ function smarty_function_require($params, $smarty){
     BigPipeResource::registModule($link);
 
     $context   = BigPipe::currentContext();
+    $resource =  BigPipeResource::getResourceByPath($link);
 
-    $ext = substr(strrchr($link, "."), 1);
-    switch ($ext) {
+    switch ($resource["type"]) {
         case 'css':
-        case 'less':
             $on = isset($params['on']) ? $params['on'] : 'beforedisplay';
             break;
         case 'js':

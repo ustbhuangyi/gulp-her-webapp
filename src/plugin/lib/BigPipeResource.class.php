@@ -11,7 +11,7 @@ class BigPipeResource
         "res"=>array(),
         "tpl"=>array(),
         "pkg"=>array()
-        );
+    );
     private static $registedMoudle = array();
     public static $knownResources = array();
     
