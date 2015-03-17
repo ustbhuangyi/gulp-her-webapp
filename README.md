@@ -1,4 +1,4 @@
-#gulp-her-webapp：基于gulp编译工具和Bipipe运行时的一套前端集成解决方案。
+#gulp-her-webapp：基于gulp编译工具和BigPipe运行时的一套前端集成解决方案。
 
 编译工具：Her定义了一套开发规范，通过编写gulp-her插件实现了一套完整的自动化构建平台。
 
