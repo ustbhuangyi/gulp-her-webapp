@@ -9,10 +9,10 @@
 [BigPipe: Pipelining web pages for high performance](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919)
 
 ##核心功能##
-###1.页面分块pagelet###
+###1.页面分块Pagelet###
 pagelet将页面的dom，以及dom依赖的css、js分块收集，使用controller控制按需输出，实现了类bigpipe的分块输出，前端BigPipe模块可以实现异步渲染，优化渲染速度和性能。
 
-###2.延迟渲染bigRender###
+###2.延迟渲染BigRender###
 页面加载的时候只渲染首屏内容，用户滚动页面的时候再渲染可见区域。可以有效提高首屏速度。
 
 ###3.局部刷新Quickling###

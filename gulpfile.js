@@ -60,7 +60,7 @@ var herconf = {
         release: dest + statics + '/' + namespace
       },
       css: {
-        src: ['src/**/*.css', 'src/**/*.styl'],
+        src: ['src/**/*.css', 'src/**/*.styl', 'src/**/*.less'],
         release: dest + statics + '/' + namespace
       },
       image: {
