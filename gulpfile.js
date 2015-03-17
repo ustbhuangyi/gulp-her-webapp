@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var gulpCommand = require('gulp-command')(gulp);
 var her = require('gulp-her-kernel');
 var browserSync = require('browser-sync');
+
 //prettty
 var $ = require('gulp-load-plugins')({
   rename: {
@@ -47,18 +48,19 @@ var herconf = {
       sass: 'css'
     },
     domain: ['http://s0.hao123.com/her', 'http://s1.hao123.com/her'],
+    //release rules
     path: {
       tpl: {
-        src: ['src/**/*.tpl', '!src/smarty/**/*.tpl', '!src/fisdata/**/*.tpl'],
+        src: ['src/**/*.tpl', '!src/smarty/**/*.tpl'],
         release: dest + templates + '/' + namespace,
         url: namespace
       },
       js: {
-        src: ['src/**/*.js', '!src/libs/**/*.js', '!src/fisdata/**/*.js'],
+        src: ['src/**/*.js', '!src/libs/**/*.js'],
         release: dest + statics + '/' + namespace
       },
       css: {
-        src: ['src/**/*.css', 'src/**/*.styl', '!src/fisdata/**/*.css'],
+        src: ['src/**/*.css', 'src/**/*.styl'],
         release: dest + statics + '/' + namespace
       },
       image: {
@@ -72,9 +74,18 @@ var herconf = {
       testdata: {
         src: ['src/test/**/*'],
         release: dest + '/test/' + namespace
+      },
+      smarty: {
+        src: ['src/smarty/**/*'],
+        release: dest + '/smarty'
+      },
+      php: {
+        src: ['src/*.php'],
+        release: dest
       }
     }
   },
+  //pack rules
   pack: [{
     src: ['src/**/*.css', 'src/**/*.styl', '!src/page/index.css'],
     release: dest + statics + '/' + namespace + pkgs + '/aio.css'
@@ -98,6 +109,7 @@ var herconf = {
   }
 };
 
+//short for herconf.roadmap.path
 var path = herconf.roadmap.path;
 
 //required
@@ -151,6 +163,7 @@ gulp.task('css:compile', function () {
     .pipe($.if(/styl$/, $.stylus({
       errors: true
     })))
+    .pipe($.if(/less$/, $.less()))
     .pipe($.cssExpand());
 });
 
@@ -178,14 +191,14 @@ gulp.task('testdata:copy', function () {
 
 //copy smarty
 gulp.task('smarty:copy', function () {
-  gulp.src('src/smarty/**/*')
-    .pipe(gulp.dest(dest + '/smarty'));
+  gulp.src(path.smarty.src)
+    .pipe(gulp.dest(path.smarty.release));
 });
 
 //copy php
 gulp.task('php:copy', function () {
-  gulp.src('src/*.php')
-    .pipe(gulp.dest(dest));
+  gulp.src(path.php.src)
+    .pipe(gulp.dest(path.php.release));
 });
 
 //copy plugin
@@ -205,9 +218,9 @@ gulp.task('connect', ['compile'], function () {
     });
   });
 
-  gulp.watch('src/*.php', function () {
+  gulp.watch(path.php.src, function () {
     gulp.start('php:copy');
-    //browserSync.reload();
+    browserSync.reload();
   });
   gulp.watch(path.js.src, function () {
     reCompile();
@@ -227,7 +240,7 @@ gulp.task('connect', ['compile'], function () {
 
   function reCompile() {
     gulp.start('default', function () {
-      //browserSync.reload();
+      browserSync.reload();
     });
   }
 });
