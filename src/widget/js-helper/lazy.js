@@ -6,8 +6,8 @@
  * 2013.06.04
  */
 
-var pageEvents = require("./pageEvents.js"),
-    queue = require("./queue.js"),
+var pageEvents = require("./pageEvents.Bigpipe"),
+    queue = require("./queue.Bigpipe"),
     //保存每一条需要懒加载的信息，每条包括elem,callback,key。
     //elem:有src属性的元素，callback，自定义的处理加载的函数，key：每一次add的每一条信息都用唯一的key值标识
     _data = [],
@@ -70,7 +70,7 @@ function getElementsOffsetTop() {
     var $ = require("jquery");
     //if (jqueryLoadState == STATE_UNINIT) {
     //    jqueryLoadState = STATE_LOADING;
-    //    requireLazy(["common.js.jquery"], function($) {
+    //    requireLazy(["common.Bigpipe.jquery"], function($) {
     //        jqueryLoadState = STATE_LOADED;
             getElementsOffsetTop = getElementsOffsetTopViaJquery;
             queue.call(getElementsOffsetTop);
@@ -167,7 +167,7 @@ function checkViewPortChange() {
         viewPortChanged = false;
         excute(event.getViewport());
         setTimeout(function () {
-            excuteing = false; 
+            excuteing = false;
             checkViewPortChange();
           }, 20);
     }
@@ -180,7 +180,7 @@ function excute(e, data) {
     data = data || _data;
     var len = data.length, item;
     if (len <= 0) {return; }
-    requireLazy(['common.js.jquery'], function ($) {
+    requireLazy(['common.Bigpipe.jquery'], function ($) {
         var len = data.length, item;
         while (len--) {
             item = data[len];
@@ -192,7 +192,7 @@ function excute(e, data) {
                 data.splice(len, 1);
                 item.callback(item.elem);
             }
-            //如果是手动执行且未执行显示，需要把元素添加到_data,以便viewport.change发生时再次调用 
+            //如果是手动执行且未执行显示，需要把元素添加到_data,以便viewport.change发生时再次调用
             else if (!e) {
                 _data.push(data[len]);
             }

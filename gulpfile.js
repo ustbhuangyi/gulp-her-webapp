@@ -67,17 +67,21 @@ var herconf = {
         src: ['src/**/*.jpg', 'src/**/*.png'],
         release: dest + statics + '/' + namespace
       },
-      lib: {
-        src: ['src/libs/**/*.js'],
-        release: dest + '/libs'
+      libjs: {
+        src: ['src/libs/Bigpipe/javascript/**/*.js'],
+        release: dest + '/libs/Bigpipe/javascript'
+      },
+      libruntime: {
+        src: ['src/libs/Bigpipe/runtime/**/*'],
+        release: dest + '/libs/Bigpipe/runtime'
+      },
+      smarty: {
+        src: ['src/libs/smarty/**/*'],
+        release: dest + '/libs/smarty'
       },
       testdata: {
         src: ['src/test/**/*'],
         release: dest + '/test/' + namespace
-      },
-      smarty: {
-        src: ['src/smarty/**/*'],
-        release: dest + '/smarty'
       },
       php: {
         src: ['src/*.php'],
@@ -90,7 +94,7 @@ var herconf = {
     src: ['src/**/*.css', 'src/**/*.styl', '!src/page/index.css'],
     release: dest + statics + '/' + namespace + pkgs + '/aio.css'
   }, {
-    src: 'src/resource/js/vender/*.js',
+    src: 'src/resource/Bigpipe/vender/*.js',
     release: dest + statics + '/' + namespace + pkgs + '/vender.js'
   }, {
     src: ['src/widget/**/*.js', 'src/page/**/*.js', 'src/resource/**/*.js', '!src/page/defer.js'],
@@ -139,7 +143,7 @@ gulp.task('init', function () {
   her.config.merge(herconf);
 });
 
-//compile js
+//compile Bigpipe
 gulp.task('js:compile', function () {
   return gulp.src(path.js.src)
     .pipe($.beforeCompile(ret))
@@ -148,9 +152,9 @@ gulp.task('js:compile', function () {
     .pipe($.jsExpand());
 });
 
-//compile lib
-gulp.task('lib:compile', function () {
-  return gulp.src(path.lib.src)
+//compile plugins
+gulp.task('libjs:compile', function () {
+  return gulp.src(path.libjs.src)
     .pipe($.beforeCompile(ret))
     .pipe($.jsExpand());
 });
@@ -189,11 +193,18 @@ gulp.task('testdata:copy', function () {
     .pipe(gulp.dest(path.testdata.release))
 });
 
+//copy runtime
+gulp.task('libruntime:copy', function () {
+  gulp.src(path.libruntime.src)
+    .pipe(gulp.dest(path.libruntime.release));
+});
+
 //copy smarty
 gulp.task('smarty:copy', function () {
   gulp.src(path.smarty.src)
     .pipe(gulp.dest(path.smarty.release));
 });
+
 
 //copy php
 gulp.task('php:copy', function () {
@@ -201,11 +212,6 @@ gulp.task('php:copy', function () {
     .pipe(gulp.dest(path.php.release));
 });
 
-//copy plugin
-gulp.task('plugin:copy', function () {
-  gulp.src('src/plugin/**/*')
-    .pipe(gulp.dest(dest + '/plugin'));
-});
 
 //connect server
 gulp.task('connect', ['compile'], function () {
@@ -225,7 +231,7 @@ gulp.task('connect', ['compile'], function () {
   gulp.watch(path.js.src, function () {
     reCompile();
   });
-  gulp.watch(path.lib.src, function () {
+  gulp.watch(path.libjs.src, function () {
     reCompile();
   });
   gulp.watch(path.css.src, function () {
@@ -266,10 +272,10 @@ gulp.task('compile', [
   'css:compile',
   'tpl:compile',
   'image:compile',
-  'lib:compile',
+  'libjs:compile',
   'testdata:copy',
   'smarty:copy',
-  'plugin:copy',
+  'libruntime:copy',
   'php:copy'
 ], function () {
   compileDone();

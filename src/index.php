@@ -27,12 +27,12 @@ function render_smarty($tpl = null, $data = array()) {
     $data_path = str_replace('/template', '/test', $tpl);
     $data_path = str_replace('.tpl', '.php', $data_path);
 
-    require_once ($root . 'smarty/Smarty.class.php');
+    require_once ($root . 'libs/smarty/Smarty.class.php');
     $smarty = new Smarty();
     $default_conf = array(
         'template_dir' => 'template',
         'config_dir' => 'config',
-        'plugins_dir' => array( 'plugin' ),
+        'plugins_dir' => array( 'libs/Bigpipe/runtime/plugins' ),
         'left_delimiter' => '{%',
         'right_delimiter' => '%}'
     );

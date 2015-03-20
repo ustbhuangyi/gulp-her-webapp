@@ -1,5 +1,5 @@
 __inline('runtimeAMD.js');
-//lib entrance
+//plugins entrance
 (function(global, window, document, undefined) {
     __inline('util/util.js');
     __inline('BigPipe.js');

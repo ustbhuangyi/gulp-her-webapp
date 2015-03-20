@@ -73,14 +73,14 @@ __d("BigPipe", ["Resource", "Requestor", "Controller"], function(global, require
      * BigPipe.setResourceMap({
      *     "XbsgfuDYNN" : {                                         //资源ID
      *          "type" : "css",                                     //资源类型
-     *          "src" : "http://s0.hao123img.com/v5/xx/XX/XX.js",   //资源地址
+     *          "src" : "http://s0.hao123img.com/v5/xx/XX/XX.Bigpipe",   //资源地址
      *          "deps" : [                                          //依赖资源 ID 列表
      *              "rIffdDBQKC",
      *              "qwlFYEkDet"
      *          ],
      *          "mods" : [                                          //资源所包含的模块列表
-     *              "common:js/jquery.js",
-     *              "common:js/event.js"
+     *              "common:Bigpipe/jquery.Bigpipe",
+     *              "common:Bigpipe/event.Bigpipe"
      *          ]
      *     },
      *     "rIffdDBQKC" : {

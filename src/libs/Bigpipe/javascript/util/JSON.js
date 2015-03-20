@@ -7,14 +7,14 @@
  *    Description:  JSON跨浏览器实现
  */
 /*
- json2.js
+ json2.Bigpipe
  2013-05-26
 
  Public Domain.
 
  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
- See http://www.JSON.org/js.html
+ See http://www.JSON.org/Bigpipe.html
 
 
  This code should be minified before deployment.

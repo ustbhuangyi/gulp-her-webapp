@@ -1,8 +1,8 @@
 <?php
 /**
- * 资源管理类 
- * 
- * @author Tobias Schlitt <toby@php.net> 
+ * 资源管理类
+ *
+ * @author Tobias Schlitt <toby@php.net>
  * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
  */
 class BigPipeResource
@@ -14,7 +14,7 @@ class BigPipeResource
     );
     private static $registedMoudle = array();
     public static $knownResources = array();
-    
+
     public static function setupMap($map)
     {
         # code...
@@ -34,8 +34,9 @@ class BigPipeResource
         }
 
         $configPath = BIGPIPE_CONF_DIR;
-        
+
         if(!in_array($femodule, self::$registedMoudle)){
+
             $mapPath = $configPath . '/' . $femodule . '-map.json';
             $map     = json_decode(file_get_contents($mapPath), true);
             BigPipeResource::setupMap($map);
@@ -51,7 +52,7 @@ class BigPipeResource
     public static function getResourceByPath($path, $type = null){
         $map = self::$map["res"];
         foreach ($map as $id => $resource) {
-            if( (!isset($type) || $type == $resource['type']) 
+            if( (!isset($type) || $type == $resource['type'])
                 && in_array($path, $resource['defines'])){
                 $resource['id'] = $id;
                 if(!isset($resource['requires'])) $resource['requires'] = array();
@@ -89,7 +90,7 @@ class BigPipeResource
 
             if(isset($dependResources[$id])){
                 continue;
-            }            
+            }
             $dependResources[$id] = $last;
 
             $lastDepends = self::getDepend($last, $asyncs);

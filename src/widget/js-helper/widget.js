@@ -7,7 +7,7 @@
  *
  * http://docs.jquery.com/UI/Widget
  */
-// @/require jquery.js;
+// @/require jquery.Bigpipe;
 
 (function(a, d) {
 	var c = a.cleanData;

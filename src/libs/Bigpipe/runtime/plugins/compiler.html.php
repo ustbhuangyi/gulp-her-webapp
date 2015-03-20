@@ -3,9 +3,9 @@
  * smarty 编译插件 html
  *
  * 处理 {html} 标签
- * 
+ *
  * @param array $params
- * @param Smarty $smarty 
+ * @param Smarty $smarty
  * @access public
  * @return string 编译后的php代码
  */
@@ -16,10 +16,10 @@ function smarty_compiler_html($params,  $smarty){
 		require_once($strBigPipePath);
 	}
 
-	return 
+	return
 '<?php '.
 'if(!class_exists("BigPipe", false)){require_once(\'' . $strBigPipePath . '\');}'.
-'if(BigPipe::init()){'.
+'if(BigPipe::init($_smarty_tpl->smarty)){'.
 	'do{'.
 		'if(' . BigPipe::compileOpenTag(BigPipe::TAG_HTML, $params) . '){'.
 '?>';
@@ -29,14 +29,14 @@ function smarty_compiler_html($params,  $smarty){
  * smarty 编译插件 htmlclose
  *
  * 处理 {/html} 标签
- * 
- * @param array $params 
- * @param Smarty $smarty 
+ *
+ * @param array $params
+ * @param Smarty $smarty
  * @access public
  * @return string 编译后的php代码
  */
 function smarty_compiler_htmlclose($params,  $smarty){
-	return 
+	return
 '<?php '.
         '}'.
         BigPipe::compileCloseTag(BigPipe::TAG_HTML, $params) . ";" .
