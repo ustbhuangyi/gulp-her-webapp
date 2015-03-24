@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 
 function render_smarty($tpl = null, $data = array()) {
-    $root = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+    $root = dirname(__FILE__) . '/';
     if (!$tpl) {
         $path = $_SERVER['REQUEST_URI'];
         $split = explode('/', $path);
