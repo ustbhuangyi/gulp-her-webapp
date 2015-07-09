@@ -32,7 +32,7 @@ function render_smarty($tpl = null, $data = array()) {
     $default_conf = array(
         'template_dir' => 'template',
         'config_dir' => 'config',
-        'plugins_dir' => array( 'libs/Bigpipe/runtime/plugins' ),
+        'plugins_dir' => array( 'libs/Bigpipe/plugin' ),
         'left_delimiter' => '{%',
         'right_delimiter' => '%}'
     );

@@ -4,27 +4,27 @@ BigPipe::loadClass("BigPipeResource");
 
 /**
  * 第一次请求页面时的输出控制器
- * 
+ *
  *    共分为4个阶段输出:
  *
- *    1.渲染并收集最外层结构(未被pagelet包裹的内容)并收集使用到的Js和CSS  
- *    2.输出html、head、body和最外层结构，并且输出前端库及使用到的CSS和Js资源  
- *    3.根据优先级输出各层结构，并输出依赖资源表  
- *    4.结束  
+ *    1.渲染并收集最外层结构(未被pagelet包裹的内容)并收集使用到的Js和CSS
+ *    2.输出html、head、body和最外层结构，并且输出前端库及使用到的CSS和Js资源
+ *    3.根据优先级输出各层结构，并输出依赖资源表
+ *    4.结束
  *
  * @uses PageController
- * @author Zhang Yuanwei <zhangyuanwei@baidu.com> 
+ * @author Zhang Yuanwei <zhangyuanwei@baidu.com>
  */
 class FirstController extends PageController
 {
     const STAT_COLLECT = 1; // 收集阶段
     const STAT_OUTPUT = 2; // 输出阶段
-    
+
     private $state = self::STAT_COLLECT; //初始状态
     private $headInnerHTML = null;
     private $bodyInnerHTML = null;
     private $loadedResource = array();
-    
+
     protected $sessionId = 0; //此次会话ID,用于自动生成不重复id,第一次默认为0
     protected $uniqIds = array(); //不重复id种子
     protected static $knownEvents = array(
@@ -36,7 +36,7 @@ class FirstController extends PageController
     );
     /**
      * 构造函数
-     * 
+     *
      * @access public
      * @return void
      */
@@ -91,7 +91,7 @@ class FirstController extends PageController
             //'output_html_open' => false,
             'output_head_open' => array(
                 'outputOpenTag',
-                //TODO 'outputNoscriptFallback',
+                'outputNoscriptFallback',
                 'outputHeadHTML',
                 false
             ),
@@ -125,7 +125,7 @@ class FirstController extends PageController
             'default' => false
         );
     }
-    
+
     /**
      * 收集阶段调用函数,收集 head 标签中的 HTML 内容
      *
@@ -135,7 +135,7 @@ class FirstController extends PageController
     {
         $this->headInnerHTML = ob_get_clean();
     }
-    
+
     /**
      * 收集阶段调用函数,收集 body 标签中的HTML内容
      *
@@ -145,7 +145,7 @@ class FirstController extends PageController
     {
         $this->bodyInnerHTML = ob_get_clean();
     }
-    
+
     /**
      * 将当前 pagelet 添加到输出列表中
      *
@@ -156,8 +156,24 @@ class FirstController extends PageController
         $context->getParam("id", $this->sessionUniqId("__elm_"), PageletContext::FLG_APPEND_PARAM);
         $this->pagelets[] = $context;
     }
-    
-    
+
+    /**
+     * outputNoscriptFallback 输出noscript跳转 {{{
+     *
+     * @param mixed $context
+     * @access protected
+     * @return void
+     */
+    protected function outputNoscriptFallback($context)
+    {
+        $uri=$_SERVER["REQUEST_URI"];
+        $uri=$uri . (strpos($uri, "?")===false ? "?" : "&") . BigPipe::NO_JS . "=1";
+
+        echo "<noscript>";
+        echo "<meta http-equiv=\"refresh\" content=\"0; URL=$uri\" />";
+        echo "</noscript>";
+    }
+
     /**
      * 输出布局阶段调用函数,将收集到的 head 标签中的 HTML 内容输出
      *
@@ -167,7 +183,7 @@ class FirstController extends PageController
     {
         echo $this->headInnerHTML;
     }
-    
+
     /**
      * 输出布局阶段调用函数,将收集到的 body 标签中的 HTML 内容输出
      *
@@ -213,7 +229,7 @@ class FirstController extends PageController
                 echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$resource['src']}\" />";
             }
         }
-        
+
     }
 
     protected function outputBigPipeLibrary($context)
@@ -234,8 +250,8 @@ class FirstController extends PageController
        //     "separator" => BigPipe::$separator,
        //     "debug" => BigPipe::$debug
        // )) . ");</script>\n";
-    } // 
-    
+    } //
+
     protected function outputLoadedResource($context)
     {
        $loadedResource = json_encode(array_keys(($this->loadedResource)));
@@ -263,18 +279,18 @@ class FirstController extends PageController
             $this->outputPagelet($pagelet);
         }
     }
-    
+
     protected function outputPagelet($pagelet)
     {
         $resourceMap = array();
         $hooks = array();
         $config = $this->getPageletConfig($pagelet, $html, $resourceMap, $hooks);
-        
+
         // 输出注释里的 HTML
         if (!empty($html)) {
             echo "\n" . $html;
         }
-        
+
         echo "\n<script>\"use strict\";\n";
         // 输出函数
         if (!empty($hooks)) {
@@ -282,8 +298,8 @@ class FirstController extends PageController
                 echo "BigPipe.hooks[\"$id\"]=function(){{$hook}};\n";
             }
         }
-        
-        //设置资源表 
+
+        //设置资源表
         if (!empty($resourceMap)) {
             $resourceMap = BigPipeResource::pathToResource($resourceMap);
             $resourceMap = BigPipeResource::getDependResource($resourceMap);
@@ -292,7 +308,7 @@ class FirstController extends PageController
 
             $outputMap = array();
             foreach ($resourceMap as $id => $resource) {
-                
+
                 if(isset(BigPipeResource::$knownResources[$id])){
                     continue;
                 }
@@ -317,11 +333,11 @@ class FirstController extends PageController
 
             echo "BigPipe.setResourceMap(", json_encode($outputMap), ");\n";
         }
-        
-        //输出 pagelet 配置 
+
+        //输出 pagelet 配置
         echo "BigPipe.onPageletArrive(", json_encode($config), ");\n";
         echo "</script>";
-        
+
     }
 
     /**
@@ -335,9 +351,9 @@ class FirstController extends PageController
     private function getPageletConfig($pagelet, &$html, &$resourceMap, &$hooks)
     {
         $config      = array();
-        
+
         $config["id"] = $pagelet->getParam("id");
-        
+
         foreach ($pagelet->children as $child) {
             $config["children"][] = $child->getParam("id");
         }
@@ -345,20 +361,20 @@ class FirstController extends PageController
         if($pagelet->parent) {
             $config["parent"] = $pagelet->parent->getParam("id");
         }
-        
+
         if (!empty($pagelet->html)) {
             //生成容器ID
             $containerId = $this->sessionUniqId("__cnt_");
-            
+
             //生成注释的内容
             $html = "<code id=\"$containerId\" style=\"display:none\"><!-- ";
             $html .= $this->getCommentHTML($pagelet->html);
             $html .= " --></code>";
-            
+
             //设置html属性
             $config["html"]["container"] = $containerId;
         }
-                
+
         foreach (self::$knownEvents as $type) {
             $event = $pagelet->getEvent($type);
 
@@ -368,7 +384,7 @@ class FirstController extends PageController
                     $hooks[$hookId]           = $hook;
                     $config["hooks"][$type][] = $hookId;
                 }
-                
+
                 //deps
                 $requireResources = BigPipeResource::pathToResource($event->requires);
                 $config["deps"][$type] = array_keys($requireResources);
@@ -378,7 +394,7 @@ class FirstController extends PageController
         }
         return $config;
     }
-    
+
     /**
      * 得到注释包裹的HTML
      *
@@ -395,9 +411,9 @@ class FirstController extends PageController
             "--\\>"
         ), $html);
     }
-    
+
     /**
-     * 改变状态  
+     * 改变状态
      *
      * @param PageletContext $context
      */
@@ -407,12 +423,12 @@ class FirstController extends PageController
             $this->state = self::STAT_OUTPUT;
         }
     }
-    
+
     /**
-     * getActionKey 得到需要执行的动作索引  
-     * 
-     * @param mixed $context 
-     * @param mixed $action 
+     * getActionKey 得到需要执行的动作索引
+     *
+     * @param mixed $context
+     * @param mixed $action
      * @access protected
      * @return void
      */
@@ -428,7 +444,7 @@ class FirstController extends PageController
                 break;
             default:
         }
-        
+
         switch ($type) {
             case BigPipe::TAG_HTML:
                 $keys[] = "html";
@@ -447,7 +463,7 @@ class FirstController extends PageController
                 break;
             default:
         }
-        
+
         switch ($action) {
             case PageController::ACTION_OPEN:
                 $keys[] = "open";
@@ -460,18 +476,18 @@ class FirstController extends PageController
                 break;
             default:
         }
-        
+
         $key = join("_", $keys);
         if (!isset($this->actionChain[$key])) {
             $key = 'default';
         }
         return $key;
     }
-    
+
     /**
-     * 得到本次会话中唯一ID  
-     * 
-     * @param string $prefix 可选前缀 
+     * 得到本次会话中唯一ID
+     *
+     * @param string $prefix 可选前缀
      * @return string
      */
     protected function sessionUniqId($prefix = "")
@@ -483,7 +499,7 @@ class FirstController extends PageController
         return $prefix . $this->sessionId . "_" . $this->uniqIds[$prefix];
         //sessionKey
     }
-    
+
 }
 
 // vim600: sw=4 ts=4 fdm=marker syn=php

@@ -25,7 +25,7 @@ var $ = require('gulp-load-plugins')({
 var namespace = 'home';
 //smarty template dir
 var templates = '/template';
-// static dir
+// resource dir
 var statics = '/static';
 //release root dir
 var dest = 'dist';
@@ -67,13 +67,13 @@ var herconf = {
         src: ['src/**/*.jpg', 'src/**/*.png'],
         release: dest + statics + '/' + namespace
       },
-      libjs: {
+      bigpipeJs: {
         src: ['src/libs/Bigpipe/javascript/**/*.js'],
         release: dest + '/libs/Bigpipe/javascript'
       },
-      libruntime: {
-        src: ['src/libs/Bigpipe/runtime/**/*'],
-        release: dest + '/libs/Bigpipe/runtime'
+      bigpipePlugin: {
+        src: ['src/libs/Bigpipe/plugin/**/*'],
+        release: dest + '/libs/Bigpipe/plugin'
       },
       smarty: {
         src: ['src/libs/smarty/**/*'],
@@ -91,8 +91,8 @@ var herconf = {
   },
   //pack rules
   pack: [{
-    src: ['src/**/*.css', 'src/**/*.styl', '!src/page/index.css'],
-    release: dest + statics + '/' + namespace + pkgs + '/aio.css'
+    src: ['src/resource/lib/**/*.css'],
+    release: dest + statics + '/' + namespace + pkgs + '/common.css'
   }, {
     src: 'src/resource/Bigpipe/vender/*.js',
     release: dest + statics + '/' + namespace + pkgs + '/vender.js'
@@ -121,9 +121,8 @@ var ret = {
   ids: {},
   pkg: {},
   map: {
-    tpl: {},
     res: {},
-    pkg: {}
+    her: {}
   }
 };
 
@@ -143,7 +142,7 @@ gulp.task('init', function () {
   her.config.merge(herconf);
 });
 
-//compile Bigpipe
+//compile js
 gulp.task('js:compile', function () {
   return gulp.src(path.js.src)
     .pipe($.beforeCompile(ret))
@@ -152,22 +151,14 @@ gulp.task('js:compile', function () {
     .pipe($.jsExpand());
 });
 
-//compile plugins
-gulp.task('libjs:compile', function () {
-  return gulp.src(path.libjs.src)
-    .pipe($.beforeCompile(ret))
-    .pipe($.jsExpand());
-});
-
 //compile css
 gulp.task('css:compile', function () {
   return gulp.src(path.css.src)
     .pipe($.beforeCompile(ret))
     //if is a stylus file, use stylus plugin to compile
-    .pipe($.if(/styl$/, $.stylus({
-      errors: true
-    })))
-    .pipe($.if(/less$/, $.less()))
+    .pipe($.if(/.styl$/, $.stylus()))
+    //if is a less file, use stylus plugin to compile
+    .pipe($.if(/.less$/, $.less()))
     .pipe($.cssExpand());
 });
 
@@ -187,16 +178,25 @@ gulp.task('image:compile', function () {
     .pipe($.beforeCompile(ret))
 });
 
-//compile image
+
+//compile bigpipeJs
+gulp.task('bigpipeJs:compile', function () {
+  gulp.src(path.bigpipeJs.src)
+    .pipe($.beforeCompile(ret))
+    .pipe($.jsExpand());
+});
+
+//copy bigpipePlugin
+gulp.task('bigpipePlugin:copy', function () {
+  gulp.src(path.bigpipePlugin.src)
+    .pipe(gulp.dest(path.bigpipePlugin.release));
+});
+
+
+//copy testdata
 gulp.task('testdata:copy', function () {
   gulp.src(path.testdata.src)
     .pipe(gulp.dest(path.testdata.release))
-});
-
-//copy runtime
-gulp.task('libruntime:copy', function () {
-  gulp.src(path.libruntime.src)
-    .pipe(gulp.dest(path.libruntime.release));
 });
 
 //copy smarty
@@ -205,13 +205,11 @@ gulp.task('smarty:copy', function () {
     .pipe(gulp.dest(path.smarty.release));
 });
 
-
 //copy php
 gulp.task('php:copy', function () {
   gulp.src(path.php.src)
     .pipe(gulp.dest(path.php.release));
 });
-
 
 //connect server
 gulp.task('connect', ['compile'], function () {
@@ -231,7 +229,7 @@ gulp.task('connect', ['compile'], function () {
   gulp.watch(path.js.src, function () {
     reCompile();
   });
-  gulp.watch(path.libjs.src, function () {
+  gulp.watch(path.bigpipeJs.src, function () {
     reCompile();
   });
   gulp.watch(path.css.src, function () {
@@ -245,18 +243,24 @@ gulp.task('connect', ['compile'], function () {
   });
 
   function reCompile() {
-    gulp.start('default', function () {
-      browserSync.reload();
-    });
+    gulp.start('default');
   }
 });
 
 //clean dest dir
 gulp.task('clean', require('del').bind(null, [dest]));
 
-gulp.task('default', ['clean', 'init'], function () {
-  gulp.start('compile');
-});
+gulp.task('compile', [
+  'js:compile',
+  'css:compile',
+  'tpl:compile',
+  'image:compile',
+  'bigpipeJs:compile',
+  'testdata:copy',
+  'smarty:copy',
+  'bigpipePlugin:copy',
+  'php:copy'
+], compileDone);
 
 function compileDone() {
   if (her.config.get('package')) {
@@ -267,18 +271,8 @@ function compileDone() {
   $.afterCompile(ret);
 }
 
-gulp.task('compile', [
-  'js:compile',
-  'css:compile',
-  'tpl:compile',
-  'image:compile',
-  'libjs:compile',
-  'testdata:copy',
-  'smarty:copy',
-  'libruntime:copy',
-  'php:copy'
-], function () {
-  compileDone();
+gulp.task('default', ['clean', 'init'], function () {
+  gulp.start('compile');
 });
 
 gulp.task('serve', ['clean', 'init'], function () {

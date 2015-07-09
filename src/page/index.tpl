@@ -4,8 +4,8 @@
         <script src="/plugins/Bigpipe/html5.Bigpipe"></script>
     <![endif]-->
     {%* 模板中加载静态资源 *%}
-    {%require name="home:static/lib/css/bootstrap.css"%}
-    {%require name="home:static/lib/css/bootstrap-responsive.css"%}
+    {%require name="home:resource/lib/css/bootstrap.css"%}
+    {%require name="home:resource/lib/css/bootstrap-responsive.css"%}
 {%/block%}
 {%block name="content"%}
 
@@ -74,7 +74,7 @@
             {%*/foreach*%}
         {%/pagelet%}
     </div>
-    {%require name="home:static/index/index.css"%}
+    {%require name="home:resource/index/index.css"%}
 
     {%* 通过script插件收集JS片段 *%}
     {%script%}

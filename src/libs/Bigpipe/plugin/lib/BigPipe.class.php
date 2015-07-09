@@ -76,6 +76,10 @@ class BigPipe
      */
     const ATTR_PREFIX = 'bigpipe-';
     /**
+     * 前端不支持 Js 时的 fallback 请求参数
+     */
+    const NO_JS = '__noscript__-';
+    /**
      * Quickling 请求时的特征参数
      */
     protected static $quicklingKey = '__quickling__';
@@ -83,10 +87,10 @@ class BigPipe
      * Quickling 请求时的会话参数，用于保持前后端状态
      */
     protected static $sessionKey = '__session__';
-    /**
-     * 前端不支持 Js 时的 fallback 请求参数
-     */
-    protected static $nojsKey = '__noscript__';
+//    /**
+//     * 前端不支持 Js 时的 fallback 请求参数
+//     */
+//    protected static $nojsKey = '__noscript__';
     /**
      * 前端 js 框架地址
      */
@@ -181,17 +185,17 @@ class BigPipe
     private static function getController() // {{{
     {
         $get    = self::getSuperGlobal(self::SUPER_TYPE_GET);
-        //$cookie = self::getSuperGlobal(self::SUPER_TYPE_COOKIE);
-        //
-        ///**
-        // * 先判断是否为 Noscript 请求
-        // */
-        //if (isset($get[self::$nojsKey]) || isset($cookie[self::$nojsKey])) {
-        //    setcookie(self::$nojsKey, 1);
-        //    self::loadClass("NoScriptController");
-        //    return new NoScriptController();
-        //}
-        //
+        $cookie = self::getSuperGlobal(self::SUPER_TYPE_COOKIE);
+
+        /**
+        * 先判断是否为 Noscript 请求
+        */
+        if (isset($get[self::NO_JS]) || isset($cookie[self::NO_JS])) {
+            setcookie(self::NO_JS, 1);
+            self::loadClass("NoScriptController");
+            return new NoScriptController();
+        }
+
 
         /**
         * 判断是否为 Quickling 请求
@@ -244,7 +248,8 @@ class BigPipe
 
         // BigPipeResource运行依赖her-map.json, 需要在这里设置config目录的路径
         if (!defined('BIGPIPE_CONF_DIR')) {
-            define('BIGPIPE_CONF_DIR', $smarty->getConfigDir()[0]);
+             $confDir = $smarty->getConfigDir();
+             define('BIGPIPE_CONF_DIR', $confDir[0]);
         }
 
         return true;

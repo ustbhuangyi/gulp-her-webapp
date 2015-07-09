@@ -7,9 +7,9 @@
 </a>
 {%widget name="home:widget/nav/nav.tpl"%}
 {%script%}
-    require.defer(['home:static/lib/js/jquery-1.10.1.js'],function($){
+    require.defer(['home:resource/lib/js/jquery-1.10.1.js'],function($){
         $('.btn-navbar').click(function() {
-            require.defer(['./sidebar.async.js'], function(sidebar){
+            require.defer(['./sidebar.js'], function(sidebar){
                 sidebar.run();
             });
         });

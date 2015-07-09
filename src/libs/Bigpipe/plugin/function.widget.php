@@ -25,7 +25,7 @@ function smarty_function_widget($params, $template)
     }
 
     BigPipeResource::registModule($name);
-    
+
     $tpl = BigPipeResource::getTplByPath($name);
     // Auto add widget css and less deps (no js) to currentContext.
     if(!empty($tpl["deps"])){
@@ -45,7 +45,7 @@ function smarty_function_widget($params, $template)
     }
 
     $smarty=$template->smarty;
-    $tplpath = $tpl["src"];
+    $tplpath = $tpl["uri"];
 
     // First try to call the mothed passed via the $call param,
     // in order to made it compatible for fisp.
@@ -63,7 +63,7 @@ function smarty_function_widget($params, $template)
         }
     }
 
-    // If there is no method named $call, 
+    // If there is no method named $call,
     // try to call mothed passed via the $method param
     $fn='smarty_template_function_' . $method;
     if(!function_exists($fn)) {
@@ -77,8 +77,8 @@ function smarty_function_widget($params, $template)
     if(function_exists($fn)) {
         return $fn($template, $params);
     }
-    
-    // If still no method named $method, 
+
+    // If still no method named $method,
     // try to construct a method name with the tpl path, via md5().
     // This is in order to support call method through dynamic tpl path.
     else
@@ -89,7 +89,7 @@ function smarty_function_widget($params, $template)
             $method = '_' . md5($name) . '_' . $methodName;
 
             $fn='smarty_template_function_' . $method;
-            
+
             if(function_exists($fn)){
                 return $fn($template, $params);
             }

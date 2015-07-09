@@ -9,18 +9,15 @@ class BigPipeResource
 {
     private static $map = array(
         "res"=>array(),
-        "tpl"=>array(),
-        "pkg"=>array()
+        "her"=>array()
     );
     private static $registedMoudle = array();
     public static $knownResources = array();
 
     public static function setupMap($map)
     {
-        # code...
-        self::$map["res"] = array_merge(self::$map["res"], $map["res"]);
-        self::$map["tpl"] = array_merge(self::$map["tpl"], $map["tpl"]);
-        self::$map["pkg"] = array_merge(self::$map["pkg"], $map["pkg"]);
+        self::$map["res"] = self::$map["res"] + $map["res"];
+        self::$map["her"] = self::$map["her"] + $map["her"];
     }
 
     public static function registModule($name)
@@ -46,11 +43,19 @@ class BigPipeResource
 
     public static function getTplByPath($path)
     {
-        return self::$map["tpl"][$path];
+        return self::$map["res"][$path];
     }
 
     public static function getResourceByPath($path, $type = null){
-        $map = self::$map["res"];
+
+        $map = self::$map["her"];
+        $resource = self::getResource($map,$path,$type);
+        if($resource)
+          return $resource;
+        return false;
+    }
+
+    public static function getResource($map,$path, $type){
         foreach ($map as $id => $resource) {
             if( (!isset($type) || $type == $resource['type'])
                 && in_array($path, $resource['defines'])){
